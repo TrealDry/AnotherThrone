@@ -16,6 +16,9 @@ class Player(Object):
         self.angle = 0  # градусы
         self.velocity = pygame.math.Vector2((0, 0))
 
+        self.shot_speed = 10
+        self.shot_speed_reload = 0
+
         from game import Game
         self.game = Game()
 
@@ -31,11 +34,15 @@ class Player(Object):
         # == ==
 
         # == Стрельба ==
-        if pygame.mouse.get_pressed(num_buttons=3)[0]:
+        self.shot_speed_reload += 1 if self.shot_speed_reload != 0 else 0  # Перезарядка
+        self.shot_speed_reload = 0 if self.shot_speed_reload >= self.shot_speed else self.shot_speed_reload
+
+        if pygame.mouse.get_pressed(num_buttons=3)[0] and self.shot_speed_reload == 0:
             bullet = Bullet(
-                (3, 3), self.rect.center, get_dir_from_angle(self.angle),15
+                (3, 3), self.rect.center, get_dir_from_angle(self.angle),5
             )
-            bullet.add(self.game.object_group)
+            bullet.add(self.game.group_mng["player_bullet"])
+            self.shot_speed_reload += 1
         # == ==
 
         # == Движение ==

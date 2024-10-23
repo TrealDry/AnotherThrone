@@ -1,4 +1,3 @@
-import math
 import pygame
 from sys import exit
 
@@ -7,7 +6,11 @@ from config import Config
 
 from objects.player import Player
 from objects.cursor import Cursor
-from objects.bullet import Bullet
+from objects.entity import Entity
+
+from objects.hud.hp_bar import HPBar
+
+from engine.group_manager import GroupManager
 
 
 class Game:
@@ -34,7 +37,7 @@ class Game:
 
         self.clock = pygame.Clock()
 
-        self.object_group = pygame.sprite.Group()
+        self.group_mng = GroupManager()
 
     def event_handle(self, event_list: list[pygame.Event]):
         for event in event_list:
@@ -44,27 +47,22 @@ class Game:
 
     def game_loop(self):
         game_player = Player((16, 16), (0, 0))
+        entity = Entity((16, 16), (100, 100), 10, 10)
+        hp_bar = HPBar(entity)
         cursor = Cursor((8, 8), (0, 0))
 
-        game_player.add(self.object_group)
-        cursor.add(self.object_group)
-
-        # for i in range(0, 360, 5):
-        #     rad = math.radians(i)
-        #     velocity = (math.cos(rad), math.sin(rad))
-        #     bullet = Bullet(
-        #         (2, 2), (SCREEN_SIZE[0] // 2, SCREEN_SIZE[1] // 2),
-        #         velocity, 2
-        #     )
-        #     bullet.add(object_group)
+        game_player.add(self.group_mng["player"])
+        entity.add(self.group_mng["entity"])
+        hp_bar.add(self.group_mng["hud"])
+        cursor.add(self.group_mng["hud"])
 
         while 1:
             self.event_handle(pygame.event.get())
 
-            self.object_group.update()
+            self.group_mng.update()
 
             self.screen.fill("gray")
-            self.object_group.draw(self.screen)
+            self.group_mng.draw(self.screen)
 
             self.window.blit(
                 pygame.transform.scale(
